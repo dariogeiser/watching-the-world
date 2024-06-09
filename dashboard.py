@@ -15,6 +15,7 @@ def get_country_bbox(country_name):
     Returns:
     - list: A list containing the bounding box coordinates [south, north, west, east] or None if not found
     """
+    global LASTBBOX
     geolocator = Nominatim(user_agent="watching-the-world")
     try:
         if country_name in ["United States"]:
