@@ -2,9 +2,10 @@ import streamlit as st
 import pandas as pd
 import leafmap.foliumap as leafmap
 from geopy.geocoders import Nominatim
-from geopy.exc import GeocoderTimedOut
 from pathlib import Path
 
+# Last bounding box coordinates, used for cloud because the api dont work there sometimes
+LASTBBOX = [55, -55, -150, 150]
 
 def get_country_bbox(country_name):
     """
@@ -18,6 +19,7 @@ def get_country_bbox(country_name):
     try:
         if country_name in ["United States"]:
             bbox = [24.396308, 49.384358, -125.0, -66.93457]
+            LASTBBOX = bbox
         else:
             location = geolocator.geocode(country_name)
             if location:
@@ -26,7 +28,7 @@ def get_country_bbox(country_name):
                 return None
         return [float(bbox[0]), float(bbox[1]), float(bbox[2]), float(bbox[3])]
     except Exception:
-        return [55, -55, -150, 150]
+        return LASTBBOX
 
 
 def navigate_to(route):
