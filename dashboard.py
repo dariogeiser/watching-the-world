@@ -26,7 +26,7 @@ def get_country_bbox(country_name):
                 return None
         return [float(bbox[0]), float(bbox[1]), float(bbox[2]), float(bbox[3])]
     except GeocoderTimedOut:
-        return get_country_bbox(country_name)
+        return [-90.0, 90.0, -180.0, 180.0]
 
 
 def navigate_to(route):
