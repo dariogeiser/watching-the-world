@@ -4,9 +4,6 @@ import leafmap.foliumap as leafmap
 from geopy.geocoders import Nominatim
 from pathlib import Path
 
-# Last bounding box coordinates, used for cloud because the api dont work there sometimes
-LASTBBOX = [55, -55, -150, 150]
-
 def get_country_bbox(country_name):
     """
     Function to get bounding box for a given country
@@ -15,12 +12,10 @@ def get_country_bbox(country_name):
     Returns:
     - list: A list containing the bounding box coordinates [south, north, west, east] or None if not found
     """
-    global LASTBBOX
     geolocator = Nominatim(user_agent="watching-the-world")
     try:
         if country_name in ["United States"]:
             bbox = [24.396308, 49.384358, -125.0, -66.93457]
-            LASTBBOX = bbox
         else:
             location = geolocator.geocode(country_name)
             if location:
@@ -29,7 +24,7 @@ def get_country_bbox(country_name):
                 return None
         return [float(bbox[0]), float(bbox[1]), float(bbox[2]), float(bbox[3])]
     except Exception:
-        return LASTBBOX
+        return [55, -55, -150, 150]
 
 
 def navigate_to(route):
