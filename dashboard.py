@@ -26,7 +26,7 @@ def get_country_bbox(country_name):
                 return None
         return [float(bbox[0]), float(bbox[1]), float(bbox[2]), float(bbox[3])]
     except GeocoderTimedOut:
-        return [-90.0, 90.0, -180.0, 180.0]
+        return [55, -55, -150, 150]
 
 
 def navigate_to(route):
@@ -181,6 +181,7 @@ def map_idx_to_names():
         'idxNoon': 'Noon',
         'idxMidnight': 'Midnight'
     }
+
 
 st.set_page_config(layout="wide")
 
