@@ -24,7 +24,7 @@ def get_country_bbox(country_name):
                 return None
         return [float(bbox[0]), float(bbox[1]), float(bbox[2]), float(bbox[3])]
     except Exception:
-        return [55, -55, -150, 150]
+        return None
 
 
 def navigate_to(route):
