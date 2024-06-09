@@ -25,7 +25,7 @@ def get_country_bbox(country_name):
             else:
                 return None
         return [float(bbox[0]), float(bbox[1]), float(bbox[2]), float(bbox[3])]
-    except GeocoderTimedOut:
+    except Exception:
         return [55, -55, -150, 150]
 
 
