@@ -1,0 +1,229 @@
+---
+jupyter: python3
+format:
+  html:
+    code-fold: true
+---
+
+## Where the cameras are
+
+```{python}
+#| ExecuteTime: {end_time: '2024-06-09T13:32:34.083577400Z', start_time: '2024-06-09T13:32:31.980800200Z'}
+import pandas as pd
+import matplotlib.pyplot as plt
+
+df_cams = pd.read_csv('data/cams.csv')
+df_results = pd.read_csv('data/results.csv', parse_dates=['dateSaved'])
+
+filtered_df = df_results[df_results['probability'] > 0.7]
+
+object_counts = filtered_df['class'].value_counts()
+```
+
+
+
+```{python}
+#| ExecuteTime: {end_time: '2024-06-09T13:32:39.596875700Z', start_time: '2024-06-09T13:32:38.964115100Z'}
+def country_to_continent(country):
+    continent_map = {
+        'Africa': ['Algeria', 'Angola', 'Benin', 'Botswana', 'Burkina Faso', 'Burundi', 'Cabo Verde', 'Cameroon', 'Central African Republic', 'Chad', 'Comoros', 'Congo', 'Djibouti', 'Egypt', 'Equatorial Guinea', 'Eritrea', 'Eswatini', 'Ethiopia', 'Gabon', 'Gambia', 'Ghana', 'Guinea', 'Guinea-Bissau', 'Ivory Coast', 'Kenya', 'Lesotho', 'Liberia', 'Libya', 'Madagascar', 'Malawi', 'Mali', 'Mauritania', 'Mauritius', 'Morocco', 'Mozambique', 'Namibia', 'Niger', 'Nigeria', 'Rwanda', 'Sao Tome and Principe', 'Senegal', 'Seychelles', 'Sierra Leone', 'Somalia', 'South Africa', 'South Sudan', 'Sudan', 'Tanzania', 'Togo', 'Tunisia', 'Uganda', 'Zambia', 'Zimbabwe'],
+        'Asia': ['Afghanistan', 'Armenia', 'Azerbaijan', 'Bahrain', 'Bangladesh', 'Bhutan', 'Brunei', 'Cambodia', 'China', 'Cyprus', 'Georgia', 'India', 'Indonesia', 'Iran', 'Iraq', 'Israel', 'Japan', 'Jordan', 'Kazakhstan', 'Kuwait', 'Kyrgyzstan', 'Laos', 'Lebanon', 'Malaysia', 'Maldives', 'Mongolia', 'Myanmar', 'Nepal', 'North Korea', 'Oman', 'Pakistan', 'Palestine', 'Philippines', 'Qatar', 'Saudi Arabia', 'Singapore', 'South Korea', 'Sri Lanka', 'Syria', 'Taiwan', 'Tajikistan', 'Thailand', 'Timor-Leste', 'Turkey', 'Turkmenistan', 'United Arab Emirates', 'Uzbekistan', 'Vietnam', 'Yemen', 'Hong Kong', 'Palestinian Territory'],
+        'Europe': ['Albania', 'Andorra', 'Austria', 'Belarus', 'Belgium', 'Bosnia and Herzegovina', 'Bulgaria', 'Croatia', 'Czech Republic', 'Denmark', 'Estonia', 'Faroe Islands', 'Finland', 'France', 'Germany', 'Greece', 'Greenland', 'Hungary', 'Iceland', 'Ireland', 'Italy', 'Kosovo', 'Latvia', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'Malta', 'Moldova', 'Monaco', 'Montenegro', 'Netherlands', 'North Macedonia', 'Norway', 'Poland', 'Portugal', 'Romania', 'Russia', 'San Marino', 'Serbia', 'Slovakia', 'Slovenia', 'Spain', 'Sweden', 'Switzerland', 'Ukraine', 'United Kingdom', 'Vatican City'],
+        'North America': ['Antigua and Barbuda', 'Bahamas', 'Barbados', 'Belize', 'Canada', 'Costa Rica', 'Cuba', 'Dominica', 'Dominican Republic', 'El Salvador', 'Grenada', 'Guatemala', 'Haiti', 'Honduras', 'Jamaica', 'Mexico', 'Nicaragua', 'Panama', 'Puerto Rico', 'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Trinidad and Tobago', 'United States'],
+        'Oceania': ['Australia', 'Fiji', 'Kiribati', 'Marshall Islands', 'Micronesia', 'Nauru', 'New Caledonia', 'New Zealand', 'Palau', 'Papua New Guinea', 'Samoa', 'Solomon Islands', 'Tonga', 'Tuvalu', 'Vanuatu'],
+        'South America': ['Argentina', 'Bolivia', 'Brazil', 'Chile', 'Colombia', 'Ecuador', 'French Guiana', 'Guyana', 'Paraguay', 'Peru', 'Suriname', 'Uruguay', 'Venezuela', 'Guadeloupe']
+    }
+    
+    for continent, countries in continent_map.items():
+        if country in countries:
+            return continent
+
+df_cams['continent'] = df_cams['country_name'].apply(country_to_continent)
+
+camera_counts_by_continent = df_cams['continent'].value_counts()
+
+plt.figure(figsize=(10, 6))
+camera_counts_by_continent.plot(kind='bar', color='black')
+plt.xlabel('Continent', fontsize=14)
+plt.ylabel('Number of Cameras', fontsize=14)
+plt.title('Number of Cameras by Continent', fontsize=16)
+plt.xticks(rotation=45, fontsize=12)
+plt.yticks(fontsize=12)
+plt.show()
+```
+
+First, let's look at where these cameras are even located. The bar chart above shows the distribution of cameras across different continents. We can see that Europe has the highest number of cameras which is 10'674, followed by North America with 6'541 cameras, although almost all cameras in north america are located in the USA. With 1'725, asia has a significant number of cameras as well, altough it is much lower than the previous two, while Oceania, South America, and Africa have comparatively fewer cameras being 502, 219 and 46 respectively. This distribution highlights the concentration of surveillance infrastructure in more developed regions. 
+
+For a more interactive view we encourage you to look at the camera distribution with the dashboard above.
+
+## What the cameras saw
+
+```{python}
+#| ExecuteTime: {end_time: '2024-06-09T13:32:39.765424300Z', start_time: '2024-06-09T13:32:39.593877300Z'}
+plt.figure(figsize=(10, 6))
+object_counts.head(10).plot(kind='bar', color='black')
+plt.xlabel('Objects', fontsize=14)
+plt.ylabel('Count', fontsize=14)
+plt.title('Top 10 Most Frequently Detected Objects', fontsize=16)
+plt.xticks(rotation=45)
+plt.show()
+```
+
+```{python}
+#| ExecuteTime: {end_time: '2024-06-09T13:32:44.230899400Z', start_time: '2024-06-09T13:32:39.779428200Z'}
+def country_to_continent(country):
+    continent_map = {
+        'Asia': ['Afghanistan', 'Armenia', 'Azerbaijan', 'Bahrain', 'Bangladesh', 'Bhutan', 'Brunei', 'Cambodia', 'China', 'Cyprus', 'Georgia', 'India', 'Indonesia', 'Iran', 'Iraq', 'Israel', 'Japan', 'Jordan', 'Kazakhstan', 'Kuwait', 'Kyrgyzstan', 'Laos', 'Lebanon', 'Malaysia', 'Maldives', 'Mongolia', 'Myanmar', 'Nepal', 'North Korea', 'Oman', 'Pakistan', 'Palestine', 'Philippines', 'Qatar', 'Saudi Arabia', 'Singapore', 'South Korea', 'Sri Lanka', 'Syria', 'Taiwan', 'Tajikistan', 'Thailand', 'Timor-Leste', 'Turkey', 'Turkmenistan', 'United Arab Emirates', 'Uzbekistan', 'Vietnam', 'Yemen', 'Hong Kong', 'Palestinian Territory'],
+        'Europe': ['Albania', 'Andorra', 'Austria', 'Belarus', 'Belgium', 'Bosnia and Herzegovina', 'Bulgaria', 'Croatia', 'Czech Republic', 'Denmark', 'Estonia', 'Faroe Islands', 'Finland', 'France', 'Germany', 'Greece', 'Greenland', 'Hungary', 'Iceland', 'Ireland', 'Italy', 'Kosovo', 'Latvia', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'Malta', 'Moldova', 'Monaco', 'Montenegro', 'Netherlands', 'North Macedonia', 'Norway', 'Poland', 'Portugal', 'Romania', 'Russia', 'San Marino', 'Serbia', 'Slovakia', 'Slovenia', 'Spain', 'Sweden', 'Switzerland', 'Ukraine', 'United Kingdom', 'Vatican City'],
+        'North America': ['Antigua and Barbuda', 'Bahamas', 'Barbados', 'Belize', 'Canada', 'Costa Rica', 'Cuba', 'Dominica', 'Dominican Republic', 'El Salvador', 'Grenada', 'Guatemala', 'Haiti', 'Honduras', 'Jamaica', 'Mexico', 'Nicaragua', 'Panama', 'Puerto Rico', 'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Trinidad and Tobago', 'United States'],
+    }
+    
+    for continent, countries in continent_map.items():
+        if country in countries:
+            return continent
+    return 'Other'
+
+
+merged_df = pd.merge(df_results, df_cams, on='camId')
+
+merged_df['continent'] = merged_df['country_name'].apply(country_to_continent)
+
+class_continent_counts = merged_df.groupby(['continent', 'class']).size().unstack().fillna(0)
+
+top_classes = class_continent_counts.sum().sort_values(ascending=False).head(10).index
+filtered_class_continent_counts = class_continent_counts[top_classes]
+
+ax = filtered_class_continent_counts.plot(kind='bar', stacked=True, figsize=(4, 11))
+plt.xlabel('Continent', fontsize=12)
+plt.ylabel('Number of Detections', fontsize=12)
+plt.title('Top 10 Most Frequently Detected Objects by Continent', fontsize=14)
+
+handles, labels = ax.get_legend_handles_labels()
+ax.legend(handles, labels, title='Class', bbox_to_anchor=(1.05, 1), loc='upper left')
+
+plt.xticks(rotation=45, fontsize=10)
+
+max_y = int(filtered_class_continent_counts.sum(axis=1).max())
+plt.yticks(range(0, max_y + 50000, 50000), fontsize=10)  
+
+plt.show()
+```
+
+Next, let's explore what these cameras detected the most, both overall and by continent. The first bar chart shows the top ten most frequently detected objects. Cars and people are the most common, each being detected over 200,000 times. Trains come next, highlighting significant transportation monitoring. Other frequent detections include benches, TVs, airplanes, boats, beds, chairs, and traffic lights. This variety shows that surveillance cameras capture a wide range of activities and objects, monitoring both human actions and static items.
+
+The second bar chart breaks down these detections by continent. Europe has the highest number of detections, especially for cars and people, reflecting its extensive surveillance network. North America also shows a high number of detections with a similar pattern. Asia, though having fewer cameras, still shows a diverse range of detected objects. This chart highlights how surveillance varies across regions and what types of activities are most commonly monitored in different parts of the world.
+
+Let's continue by going into more detail on the object that the cameras detected the most, cars.
+
+## Car detection in more detail
+
+```{python}
+#| ExecuteTime: {end_time: '2024-06-09T13:32:52.168073700Z', start_time: '2024-06-09T13:32:44.237905Z'}
+def country_to_continent(country):
+    continent_map = {
+        'Africa': ['Algeria', 'Angola', 'Benin', 'Botswana', 'Burkina Faso', 'Burundi', 'Cabo Verde', 'Cameroon', 'Central African Republic', 'Chad', 'Comoros', 'Congo', 'Djibouti', 'Egypt', 'Equatorial Guinea', 'Eritrea', 'Eswatini', 'Ethiopia', 'Gabon', 'Gambia', 'Ghana', 'Guinea', 'Guinea-Bissau', 'Ivory Coast', 'Kenya', 'Lesotho', 'Liberia', 'Libya', 'Madagascar', 'Malawi', 'Mali', 'Mauritania', 'Mauritius', 'Morocco', 'Mozambique', 'Namibia', 'Niger', 'Nigeria', 'Rwanda', 'Sao Tome and Principe', 'Senegal', 'Seychelles', 'Sierra Leone', 'Somalia', 'South Africa', 'South Sudan', 'Sudan', 'Tanzania', 'Togo', 'Tunisia', 'Uganda', 'Zambia', 'Zimbabwe'],
+        'Asia': ['Afghanistan', 'Armenia', 'Azerbaijan', 'Bahrain', 'Bangladesh', 'Bhutan', 'Brunei', 'Cambodia', 'China', 'Cyprus', 'Georgia', 'India', 'Indonesia', 'Iran', 'Iraq', 'Israel', 'Japan', 'Jordan', 'Kazakhstan', 'Kuwait', 'Kyrgyzstan', 'Laos', 'Lebanon', 'Malaysia', 'Maldives', 'Mongolia', 'Myanmar', 'Nepal', 'North Korea', 'Oman', 'Pakistan', 'Palestine', 'Philippines', 'Qatar', 'Saudi Arabia', 'Singapore', 'South Korea', 'Sri Lanka', 'Syria', 'Taiwan', 'Tajikistan', 'Thailand', 'Timor-Leste', 'Turkey', 'Turkmenistan', 'United Arab Emirates', 'Uzbekistan', 'Vietnam', 'Yemen', 'Hong Kong', 'Palestinian Territory'],
+        'Europe': ['Albania', 'Andorra', 'Austria', 'Belarus', 'Belgium', 'Bosnia and Herzegovina', 'Bulgaria', 'Croatia', 'Czech Republic', 'Denmark', 'Estonia', 'Faroe Islands', 'Finland', 'France', 'Germany', 'Greece', 'Greenland', 'Hungary', 'Iceland', 'Ireland', 'Italy', 'Kosovo', 'Latvia', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'Malta', 'Moldova', 'Monaco', 'Montenegro', 'Netherlands', 'North Macedonia', 'Norway', 'Poland', 'Portugal', 'Romania', 'Russia', 'San Marino', 'Serbia', 'Slovakia', 'Slovenia', 'Spain', 'Sweden', 'Switzerland', 'Ukraine', 'United Kingdom', 'Vatican City', 'Macedonia'],
+        'North America': ['Antigua and Barbuda', 'Bahamas', 'Barbados', 'Belize', 'Canada', 'Costa Rica', 'Cuba', 'Dominica', 'Dominican Republic', 'El Salvador', 'Grenada', 'Guatemala', 'Haiti', 'Honduras', 'Jamaica', 'Mexico', 'Nicaragua', 'Panama', 'Puerto Rico', 'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Trinidad and Tobago', 'United States'],
+        'Oceania': ['Australia', 'Fiji', 'Kiribati', 'Marshall Islands', 'Micronesia', 'Nauru', 'New Caledonia', 'New Zealand', 'Palau', 'Papua New Guinea', 'Samoa', 'Solomon Islands', 'Tonga', 'Tuvalu', 'Vanuatu'],
+        'South America': ['Argentina', 'Bolivia', 'Brazil', 'Chile', 'Colombia', 'Ecuador', 'French Guiana', 'Guyana', 'Paraguay', 'Peru', 'Suriname', 'Uruguay', 'Venezuela', 'Guadeloupe']
+    }
+    
+    for continent, countries in continent_map.items():
+        if country in countries:
+            return continent
+
+merged_df = pd.merge(df_results, df_cams, on='camId')
+
+merged_df['continent'] = merged_df['country_name'].apply(country_to_continent)
+
+car_df = merged_df[merged_df['class'] == 'car']
+
+continent_car_counts = car_df['continent'].value_counts()
+
+plt.figure(figsize=(10, 6))
+continent_car_counts.plot(kind='bar', color='black')
+plt.xlabel('Continent', fontsize=14)
+plt.ylabel('Count', fontsize=14)
+plt.title('Frequency of Car Detections by Continent', fontsize=16)
+plt.xticks(rotation=45, fontsize=12)
+plt.yticks(fontsize=12)
+plt.show()
+```
+
+The frequency of car detections across different continents reveals that Europe leads with the highest number of car detections (187'571), followed by North America, with a little over a third of the detected cars (65'791). This indicates a significant focus on traffic monitoring in these regions. In contrast, Asia (17'124), Oceania (14'310), South America (958), and Africa (268) have considerably fewer car detections, due to fewer cameras and different surveillance priorities.
+
+This is slightly surprising since a quick google search shows that the USA and the european continent have about the same number of registered cars, the USA alone having only 5% less than the entire european continent (Europe has 297'170'530 and the USA has 283'400'986 registered vehicles). 
+
+While true that europe has many more cameras, with North America only having about 61% of the number of cameras that Europe has, that alone would not explain why North America only detects about 35% as many cars as are detected in Europe. This suggests that european cameras concentrate much more on the streets.
+
+
+```{python}
+#| ExecuteTime: {end_time: '2024-06-09T13:32:52.463951200Z', start_time: '2024-06-09T13:32:52.169077100Z'}
+filtered_df = df_results[df_results['probability'] > 0.7].copy()
+
+filtered_df['dateSaved'] = pd.to_datetime(filtered_df['dateSaved'])
+filtered_df['date'] = filtered_df['dateSaved'].dt.date
+filtered_df['hour'] = filtered_df['dateSaved'].dt.hour
+
+filtered_df_cars = filtered_df[filtered_df['class'] == 'car']
+
+count_by_hour = filtered_df_cars.groupby('hour').size() / filtered_df_cars['date'].nunique()
+
+top_hours = count_by_hour.nlargest(2).index
+
+plt.figure(figsize=(10, 6))
+bars = plt.bar(count_by_hour.index, count_by_hour.values, color='black')
+
+for bar in bars:
+    if bar.get_x() + bar.get_width() / 2 in top_hours:
+        bar.set_color('red')
+
+plt.xlabel('Hour of the day', fontsize=14)
+plt.ylabel('Average Number of Occurrences', fontsize=14)
+plt.title('Average Count of Car Detections for Each Hour', fontsize=16)
+plt.xticks(range(24), fontsize=12)
+plt.yticks(fontsize=12)
+plt.show()
+```
+
+The average number of car detections throughout the day highlights the busiest times for traffic or monitored activities. The data shows a distinct peak around midday, with the highest occurrences between 1 PM and 2 PM. This pattern offers insights into daily traffic flow and peak hours, showing when surveillance is most active.
+
+```{python}
+#| ExecuteTime: {end_time: '2024-06-09T13:32:52.621120500Z', start_time: '2024-06-09T13:32:52.469961400Z'}
+color_columns = {
+    'idxGreen': 'Green',
+    'idxBlue': 'Blue',
+    'idxRed': 'Red',
+    'idxBlack': 'Black',
+    'idxWhite': 'White'
+}
+
+color_map = {
+    'Green': 'green',
+    'Blue': 'blue',
+    'Red': 'red',
+    'Black': 'black',
+    'White': 'gray'
+}
+
+color_counts = filtered_df[list(color_columns.keys())].sum()
+
+color_counts.index = color_counts.index.map(color_columns)
+
+plt.figure(figsize=(10, 6))
+bars = plt.bar(color_counts.index, color_counts.values, color=[color_map[color] for color in color_counts.index])
+plt.xlabel('Colors', fontsize=14)
+plt.ylabel('Count', fontsize=14)
+plt.title('Frequency of Detected Colors', fontsize=16)
+plt.xticks(rotation=45, fontsize=12)
+plt.yticks(fontsize=12)
+plt.show()
+```
+
+Examining the frequency of detected colors, the data shows that black and blue are the most commonly detected colors, followed by white and red. Green appears the least frequently among the analyzed colors. This color distribution likely reflects common vehicle colors, clothing, or other objects regularly seen by the cameras. The prominence of specific colors provides an interesting perspective on the visual characteristics of monitored scenes.
+
+These visualizations collectively offer a comprehensive view of global surveillance trends. From the geographical distribution of cameras to the specific objects and patterns detected, we gain valuable insights into the extent and focus of surveillance across different regions and times. This analysis not only highlights the practical applications of surveillance but also raises important considerations regarding privacy and data usage.
+
+
+
